@@ -1,3 +1,17 @@
+/*
+  Program: main.go
+  Author: Syed Zoraiz Asif
+  Course: CSc 372
+  Assignment: part#3
+  Instructor: Lester McCann
+  TAs: Daniel Reyanalod, Muaz Ali
+  Due Date: May 4, 2026
+
+  Description:
+  Language: Go
+  Known bugs: None
+*/
+
 package main
 
 import (
