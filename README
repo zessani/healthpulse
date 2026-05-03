@@ -1,0 +1,9 @@
+CSc 372 - Project Part 3
+Authors: Zayyan Essani, Syed Zoraiz Asif
+Language: Go
+
+Language Study Document: https://docs.google.com/document/d/1c2BsqD7VVSjr3dsWbHQdVAk6jxnAElvkYjSotNOQAX8/edit?usp=sharing
+
+How to run:
+  go run .
+  Then connect with: nc localhost 8080
