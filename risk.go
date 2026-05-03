@@ -1,16 +1,19 @@
 /*
-Program: risk.go
-Author: Syed Zoraiz Asif
-Course: CSc 372
-Assignment: part#3
-Instructor: Lester McCann
-TAs: Daniel Reyanalod, Muaz Ali
-Due Date: May 4, 2026
-
-Description:
-Language: Go
-Known bugs: None
-*/
+  Authors:      Zayyan Essani, Syed Zoraiz Asif
+  Course:       CSc 372 - Comparative Programming Languages
+  Assignment:   Project Part 3 - Creative Program
+  Instructor:   Lester McCann
+  TAs:          Daniel Reynalod, Muaz Ali
+  Due Date:     May 4, 2026
+ 
+  Description:  Launches three goroutines simultaneously using buffered
+                channels, then combines weighted scores from symptoms,
+                weather, disease activity, travel history, animal contact,
+                and nearby report clusters into a final risk level.
+ 
+  Language:     Go 1.26
+  Known Bugs:   None
+ */
 
 package main
 

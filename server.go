@@ -1,3 +1,22 @@
+/*
+  Authors:      Zayyan Essani, Syed Zoraiz Asif
+  Course:       CSc 372 - Comparative Programming Languages
+  Assignment:   Project Part 3 - Creative Program
+  Instructor:   Lester McCann
+  TAs:          Daniel Reynalod, Muaz Ali
+  Due Date:     May 4, 2026
+ 
+  Description:  TCP server that handles client connections for the
+                HealthPulse system. Spawns one goroutine per client,
+                runs an interactive symptom interview, computes risk
+                using concurrent API calls, stores the report, checks
+                for clusters, and broadcasts alerts to all connected
+                clients when a cluster is detected.
+ 
+  Language:     Go 1.26
+  Known Bugs:   None
+ */
+
 package main
 
 import (
@@ -7,7 +26,7 @@ import (
 	"strings"
 	"time"
 )
-
+// symptoms users can select from
 var symptomList = []string{
 	"fever",
 	"cough",
@@ -16,7 +35,16 @@ var symptomList = []string{
 	"headache",
 	"nausea",
 }
-
+/*
+StartTCPServer - Listens on the given port and spawns a goroutine
+for each new client connection.
+Pre - store and wc are initialized.
+Post - Runs forever accepting connections.
+Params -
+port  - port string like ":8080"
+store - shared report store
+wc - shared weather cache
+ */
 func StartTCPServer(port string, store *ReportStore, wc *WeatherCache) {
 	listener, err := net.Listen("tcp", port)
 	if err != nil {
@@ -36,7 +64,17 @@ func StartTCPServer(port string, store *ReportStore, wc *WeatherCache) {
 		go handleClient(conn, store, wc)
 	}
 }
-
+/*
+handleClient - Handles a single client. Collects symptoms, zip, travel,
+and animal info, computes risk, stores the report, and
+checks for clusters. Loops so the user can submit again.
+Pre - conn is open, store and wc exist.
+Post - Report stored, alert broadcast if cluster found.
+Params -
+conn  - TCP connection to the client
+store - shared report store
+wc  - shared weather cache
+ */
 func handleClient(conn net.Conn, store *ReportStore, wc *WeatherCache) {
 	defer conn.Close()
 	addClient(store, conn)
@@ -89,7 +127,7 @@ func handleClient(conn net.Conn, store *ReportStore, wc *WeatherCache) {
 			WeatherData:   weather,
 		}
 		store.AddReport(report)
-
+		// show risk assessment
 		writeLine(rw, "==================================")
 		writeLine(rw, fmt.Sprintf("  RISK LEVEL:  %s (score: %.2f)", level, score))
 		writeLine(rw, fmt.Sprintf("  Report ID:   %s", id))
@@ -97,7 +135,7 @@ func handleClient(conn net.Conn, store *ReportStore, wc *WeatherCache) {
 		writeLine(rw, "==================================")
 		writeLine(rw, "Thank you. Your report has been recorded.")
 		writeLine(rw, "")
-
+		// broadcast if cluster detected
 		if alert, found := store.CheckCluster(zip); found {
 			broadcastAlert(store, alert)
 		}
@@ -115,7 +153,14 @@ func handleClient(conn net.Conn, store *ReportStore, wc *WeatherCache) {
 		writeLine(rw, "")
 	}
 }
-
+/*
+promptSymptoms - Shows symptom menu, reads comma-separated selection.
+Re-prompts until valid input is given.
+Pre - conn is open.
+Post - None
+Params - rw - buffered reader/writer
+Returns - selected symptoms, or error if connection drops
+ */
 func promptSymptoms(rw *bufio.ReadWriter) ([]string, error) {
 	for {
 		writeLine(rw, "[1] Select symptoms (comma-separated numbers):")
@@ -149,7 +194,13 @@ func promptSymptoms(rw *bufio.ReadWriter) ([]string, error) {
 		writeLine(rw, "")
 	}
 }
-
+/*
+promptZip - Asks for a 5-digit zip code. Re-prompts until valid.
+Pre - conn is open.
+Post - None
+Params - rw - buffered reader/writer
+Returns - valid 5-digit zip string, or error if connection drops
+ */
 func promptZip(rw *bufio.ReadWriter) (string, error) {
 	for {
 		writeLine(rw, "")
@@ -177,7 +228,15 @@ func promptZip(rw *bufio.ReadWriter) (string, error) {
 		writeLine(rw, "Invalid ZIP code. Please enter a 5-digit number (e.g. 85719).")
 	}
 }
-
+/*
+promptYesNo - Asks a yes/no question. Re-prompts until valid. 
+Pre - conn is open.
+Post - None
+Params - 
+rw  - buffered reader/writer
+question - question to display
+Returns: true for yes, false for no, or error if connection drops
+ */
 func promptYesNo(rw *bufio.ReadWriter, question string) (bool, error) {
 	for {
 		writeLine(rw, "")
@@ -198,7 +257,14 @@ func promptYesNo(rw *bufio.ReadWriter, question string) (bool, error) {
 		writeLine(rw, "Invalid input. Please enter y or n.")
 	}
 }
-
+/*
+broadcastAlert - Sends a cluster alert to every connected client.
+Pre - store has connected clients.
+Post - Alert written to all connections.
+Params - 
+store (in) - report store with client list
+alert (in) - cluster alert to send
+ */
 func broadcastAlert(store *ReportStore, alert ClusterAlert) {
 	store.mu.Lock()
 	defer store.mu.Unlock()
@@ -209,17 +275,39 @@ func broadcastAlert(store *ReportStore, alert ClusterAlert) {
 		conn.Write([]byte(msg))
 	}
 }
-
+/*
+formatSymptom - Replaces underscores with spaces and capitalizes
+the first letter for display.
+Pre - None
+Post - None
+Params -
+s 
+Returns - formatted string 
+ */
 func formatSymptom(s string) string {
 	s = strings.ReplaceAll(s, "_", " ")
 	return strings.ToUpper(s[:1]) + s[1:]
 }
-
+/*
+writeLine - Writes a string with CRLF to the client.
+Pre - conn is open.
+Post - String written and flushed.
+Params -
+rw - buffered reader/writer
+s - string to write
+ */
 func writeLine(rw *bufio.ReadWriter, s string) {
 	rw.WriteString(s + "\r\n")
 	rw.Flush()
 }
-
+/*
+write - Writes a string without a newline to the client. 
+Pre - conn is open.
+Post -  String written and flushed.
+Params -
+rw 
+s   
+ */
 func write(rw *bufio.ReadWriter, s string) {
 	rw.WriteString(s)
 	rw.Flush()

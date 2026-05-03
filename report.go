@@ -1,16 +1,21 @@
 /*
-  Program: report.go
-  Author: Syed Zoraiz Asif
-  Course: CSc 372
-  Assignment: part#3
-  Instructor: Lester McCann
-  TAs: Daniel Reyanalod, Muaz Ali
-  Due Date: May 4, 2026
+  Authors:      Zayyan Essani, Syed Zoraiz Asif
+  Course:       CSc 372 - Comparative Programming Languages
+  Assignment:   Project Part 3 - Creative Program
+  Instructor:   Lester McCann
+  TAs:          Daniel Reynalod, Muaz Ali
+  Due Date:     May 4, 2026
+ 
+  Description:  Defines all data structures for the HealthPulse system
+                including symptom reports, weather info, CDC activity,
+                pathogen alerts, and cluster alerts. Provides storage
+                using sync.Mutex and cluster detection
+                logic that flags when 3+ similar reports appear in the
+                same zip code.
 
-  Description:
-  Language: Go
-  Known bugs: None
-*/
+  Language:     Go 1.26
+  Known Bugs:   None
+ */
 
 package main
 

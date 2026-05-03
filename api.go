@@ -1,16 +1,19 @@
 /*
-Program: api.go
-Author: Syed Zoraiz Asif
-Course: CSc 372
-Assignment: part#3
-Instructor: Lester McCann
-TAs: Daniel Reyanalod, Muaz Ali
-Due Date: May 4, 2026
-
-Description:
-Language: Go
-Known bugs: None
-*/
+  Authors:      Zayyan Essani, Syed Zoraiz Asif
+  Course:       CSc 372 - Comparative Programming Languages
+  Assignment:   Project Part 3 - Creative Program
+  Instructor:   Lester McCann
+  TAs:          Daniel Reynalod, Muaz Ali
+  Due Date:     May 4, 2026
+ 
+  Description:  Provides weather, CDC activity, and pathogen alert data
+                for the risk scoring system. All three functions are called
+                as concurrent goroutines from risk.go. Includes a weather
+                cache.
+ 
+  Language:     Go 1.26
+  Known Bugs:   None
+ */
 
 package main
 
